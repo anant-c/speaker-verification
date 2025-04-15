@@ -1,3 +1,2 @@
-Speaker_Verification
-wav
-*.nemo
+.nemo
+.wav
