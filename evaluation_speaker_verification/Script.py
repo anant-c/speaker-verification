@@ -14,7 +14,8 @@ from sklearn.metrics import roc_curve
 
 def load_titanet():
     """Load the Titanet speaker embedding model."""
-    model = EncDecSpeakerLabelModel.from_pretrained(model_name="titanet_large")
+    #EncDecSpeakerLabelModel.from_pretrained(model_name="titanet_large")
+    model = EncDecSpeakerLabelModel.restore_from("./titanet-large-IMSV.nemo")
     model.eval()
     return model
 
@@ -25,7 +26,7 @@ def extract_embedding(model, audio_path):
     return embedding
 
 def process_voxceleb(dataset_dir, model, output_pickle, output_txt):
-    """Process all audio files in the VoxCeleb directory and store embeddings."""
+    """Process all audio files in the Dataset directory and store embeddings."""
     embeddings = {}
     
     with open(output_txt, "w") as txt_file:
@@ -148,7 +149,7 @@ def main():
     print("Loading Titanet model...")
     model = load_titanet()
     
-    print("Processing VoxCeleb dataset...")
+    print("Processing dataset...")
     process_voxceleb(args.dataset_dir, model, args.output_pickle, args.output_txt)
     
     print("Calculating accuracy and EER...")

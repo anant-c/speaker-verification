@@ -10,30 +10,18 @@ from sklearn.metrics import roc_curve
 from tqdm import tqdm
 
 
-"""
-This script faciliates to get EER % based on cosine-smilarity 
-for Voxceleb dataset.
-
-Args:
-    trial_file str: path to voxceleb trial file
-    emb : path to pickle file of embeddings dictionary (generated from spkr_get_emb.py)
-    save_kaldi_emb: if required pass this argument to save kaldi embeddings for KALDI PLDA training later
-    Note: order of audio files in manifest file should match the embeddings
-"""
-
-
 def get_acc(trial_file='', emb='', save_kaldi_emb=False):
-
     trial_score = open('trial_score.txt', 'w')
     dirname = os.path.dirname(trial_file)
+    
     with open(emb, 'rb') as f:
         emb = pkl.load(f)
+        
     trial_embs = []
     keys = []
     all_scores = []
     all_keys = []
 
-    # for each trials in trial file
     with open(trial_file, 'r') as f:
         tmp_file = f.readlines()
         for line in tqdm(tmp_file):
@@ -61,16 +49,14 @@ def get_acc(trial_file='', emb='', save_kaldi_emb=False):
             score = (score + 1) / 2
 
             all_scores.append(score)
-            trial_score.write(str(score) + "\t" + truth)
-            truth = int(truth)
-            all_keys.append(truth)
+            trial_score.write(str(score) + "\t" + truth + "\n")
+            all_keys.append(int(truth))
 
-            trial_score.write('\n')
     trial_score.close()
 
     if save_kaldi_emb:
-        np.save(dirname + '/all_embs_voxceleb.npy', np.asarray(trial_embs))
-        np.save(dirname + '/all_ids_voxceleb.npy', np.asarray(keys))
+        np.save(os.path.join(dirname, 'all_embs_voxceleb.npy'), np.asarray(trial_embs))
+        np.save(os.path.join(dirname, 'all_ids_voxceleb.npy'), np.asarray(keys))
         print("Saved KALDI PLDA related embeddings to {}".format(dirname))
 
     return np.asarray(all_scores), np.asarray(all_keys)
@@ -78,13 +64,13 @@ def get_acc(trial_file='', emb='', save_kaldi_emb=False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--trial_file", help="path to voxceleb trial file", type=str, required=True)
-    parser.add_argument("--emb", help="path to numpy file of embeddings", type=str, required=True)
+    parser.add_argument("--trial_file", help="Path to VoxCeleb trial file", type=str, required=True)
+    parser.add_argument("--emb", help="Path to pickle file of embeddings dictionary", type=str, required=True)
     parser.add_argument(
         "--save_kaldi_emb",
-        help=":save kaldi embeddings for KALDI PLDA training later",
+        help="Save kaldi embeddings for KALDI PLDA training later",
         required=False,
-        action='store_true',
+        action='store_true'
     )
 
     args = parser.parse_args()
